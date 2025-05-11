@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const { main } = require("./index")
+const mongoose = require('mongoose');
+const initConnections = require('.');
 
 const AvailableStockSchema = new mongoose.Schema(
     {
@@ -9,25 +9,31 @@ const AvailableStockSchema = new mongoose.Schema(
         },
         productID: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "product",
+            ref: 'product',
             required: true,
         },
         warehouseID: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "warehouse",
+            ref: 'warehouse',
             required: true,
         },
         isActive: {
             type: Boolean,
-            default: true
-        }
+            default: true,
+        },
     },
     { timestamps: true }
 );
 
-const { primaryDB, secondaryDB } = main()
+const { primaryDB, secondaryDB } = initConnections();
 
 module.exports = {
-    PrimaryAvailableStock: primaryDB.model('availablestock', AvailableStockSchema),
-    SecondaryAvailableStock: secondaryDB.model('availablestock', AvailableStockSchema)
-}
+    PrimaryAvailableStock: primaryDB.model(
+        'availablestock',
+        AvailableStockSchema
+    ),
+    SecondaryAvailableStock: secondaryDB.model(
+        'availablestock',
+        AvailableStockSchema
+    ),
+};

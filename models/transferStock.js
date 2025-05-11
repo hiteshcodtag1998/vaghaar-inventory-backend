@@ -1,16 +1,16 @@
-const mongoose = require("mongoose");
-const { main } = require("./index");
+const mongoose = require('mongoose');
+const initConnections = require('.');
 
 const TransferStockSchema = new mongoose.Schema(
     {
         userID: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "users",
+            ref: 'users',
             required: true,
         },
         productID: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "product",
+            ref: 'product',
             required: true,
         },
         quantity: {
@@ -23,12 +23,12 @@ const TransferStockSchema = new mongoose.Schema(
         },
         fromWarehouseID: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "warehouse",
+            ref: 'warehouse',
             required: true,
         },
         toWarehouseID: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "warehouse",
+            ref: 'warehouse',
             required: true,
         },
         // TotalPurchaseAmount: {
@@ -39,7 +39,7 @@ const TransferStockSchema = new mongoose.Schema(
         // },
         brandID: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "brand",
+            ref: 'brand',
             required: true,
         },
         // StoreName: {
@@ -53,15 +53,18 @@ const TransferStockSchema = new mongoose.Schema(
         // },
         isActive: {
             type: Boolean,
-            default: true
-        }
+            default: true,
+        },
     },
     { timestamps: true }
 );
 
-const { primaryDB, secondaryDB } = main()
+const { primaryDB, secondaryDB } = initConnections();
 
 module.exports = {
     PrimaryTransferStock: primaryDB.model('transferStock', TransferStockSchema),
-    SecondaryTransferStock: secondaryDB.model('transferStock', TransferStockSchema)
-}
+    SecondaryTransferStock: secondaryDB.model(
+        'transferStock',
+        TransferStockSchema
+    ),
+};

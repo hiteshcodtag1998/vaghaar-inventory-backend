@@ -1,14 +1,14 @@
-const express = require("express");
+const express = require('express');
 const app = express();
-const user = require("../controller/user");
+const user = require('../controller/user');
 
 // Add AdminUser
-app.post("/add-admin-user", user.addAdminUser);
+app.post('/add-admin-user', user.addAdminUser);
 
 // Add Super AdminUser
-app.post("/add-super-admin-user", user.addMasterSuperAdminUser);
+app.post('/add-super-admin-user', user.addMasterSuperAdminUser);
 
 // Get All User
-app.get("/", user.getAllUsers)
+app.get('/', user.getAllUsers);
 
 module.exports = app;

@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const { main } = require("./index");
+const mongoose = require('mongoose');
+const initConnections = require('.');
 
 const WarehouseSchema = new mongoose.Schema(
     {
@@ -23,10 +23,9 @@ const WarehouseSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-const { primaryDB, secondaryDB } = main()
+const { primaryDB, secondaryDB } = initConnections();
 
 module.exports = {
     PrimaryWarehouse: primaryDB.model('warehouse', WarehouseSchema),
-    SecondaryWarehouse: secondaryDB.model('warehouse', WarehouseSchema)
-}
-
+    SecondaryWarehouse: secondaryDB.model('warehouse', WarehouseSchema),
+};

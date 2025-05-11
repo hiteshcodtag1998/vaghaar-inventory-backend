@@ -1,29 +1,29 @@
-const { PrimaryRole, SecondaryRole } = require("../models/role");
+const { PrimaryRole, SecondaryRole } = require('../models/role');
 
 // Add Role in Secondary
 const addRoleSecondary = async (req, res) => {
-
     new SecondaryRole({
         name: req.body.name,
     })
         .save()
-        .then(result => {
+        .then((result) => {
             res.status(200).send(result);
-        }).catch((err) => {
+        })
+        .catch((err) => {
             res.status(402).send(err);
         });
 };
 
 // Add Role in Primary
 const addRolePrimary = async (req, res) => {
-
     new PrimaryRole({
         name: req.body.name,
     })
         .save()
-        .then(result => {
+        .then((result) => {
             res.status(200).send(result);
-        }).catch((err) => {
+        })
+        .catch((err) => {
             res.status(402).send(err);
         });
 };

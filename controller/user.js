@@ -1,13 +1,14 @@
-const role = require("../models/role");
-const { PrimaryUser, SecondaryUser } = require("../models/users");
+const role = require('../models/role');
+const { PrimaryUser, SecondaryUser } = require('../models/users');
 
 // Add AdminUser
 const addAdminUser = async (req, res) => {
     const user = new SecondaryUser(req.body);
 
-    user.save().then((result) => {
-        res.status(200).send(result);
-    })
+    user.save()
+        .then((result) => {
+            res.status(200).send(result);
+        })
         .catch((err) => {
             res.status(402).send(err);
         });
@@ -17,9 +18,10 @@ const addAdminUser = async (req, res) => {
 const addMasterSuperAdminUser = async (req, res) => {
     const user = new PrimaryUser(req.body);
 
-    user.save().then((result) => {
-        res.status(200).send(result);
-    })
+    user.save()
+        .then((result) => {
+            res.status(200).send(result);
+        })
         .catch((err) => {
             res.status(402).send(err);
         });
@@ -33,17 +35,17 @@ const getAllUsers = async (req, res) => {
                 from: 'roles',
                 localField: 'roleID',
                 foreignField: '_id',
-                as: 'roleID'
-            }
+                as: 'roleID',
+            },
         },
         {
             $unwind: {
-                path: "$roleID",
-                preserveNullAndEmptyArrays: true // Preserve records without matching BrandID
-            }
+                path: '$roleID',
+                preserveNullAndEmptyArrays: true, // Preserve records without matching BrandID
+            },
         },
-        { $sort: { _id: -1 } }
-    ])
+        { $sort: { _id: -1 } },
+    ]);
     res.json(findAllUsers);
 };
 

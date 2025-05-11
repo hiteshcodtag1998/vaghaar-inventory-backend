@@ -24,5 +24,5 @@ const generatePDFfromHTML = (htmlContent, res) => {
 };
 
 module.exports = {
-    generatePDFfromHTML
+    generatePDFfromHTML,
 };

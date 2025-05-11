@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
-const { main } = require("./index");
-const { HISTORY_TYPE } = require("../utils/constant");
+const mongoose = require('mongoose');
+const { HISTORY_TYPE } = require('../utils/constant');
+const initConnections = require('.');
 
 const HistorySchema = new mongoose.Schema(
     {
@@ -12,11 +12,16 @@ const HistorySchema = new mongoose.Schema(
             type: String,
         },
         notes: {
-            type: String
+            type: String,
         },
         type: {
             type: String,
-            enum: [HISTORY_TYPE.ADD, HISTORY_TYPE.UPDATE, HISTORY_TYPE.DELETE, HISTORY_TYPE.WRITE_OFF],
+            enum: [
+                HISTORY_TYPE.ADD,
+                HISTORY_TYPE.UPDATE,
+                HISTORY_TYPE.DELETE,
+                HISTORY_TYPE.WRITE_OFF,
+            ],
         },
         productCode: String,
         purchaseID: {
@@ -34,27 +39,27 @@ const HistorySchema = new mongoose.Schema(
         createdById: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'users',
-            default: null
+            default: null,
         },
         updatedById: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'users',
-            default: null
+            default: null,
         },
         historyDate: {
-            type: Number
+            type: Number,
         },
         isActive: {
             type: Boolean,
-            default: true
-        }
+            default: true,
+        },
     },
     { timestamps: true }
 );
 
-const { primaryDB, secondaryDB } = main()
+const { primaryDB, secondaryDB } = initConnections();
 
 module.exports = {
     PrimaryHistory: primaryDB.model('history', HistorySchema),
-    SecondaryHistory: secondaryDB.model('history', HistorySchema)
-}
+    SecondaryHistory: secondaryDB.model('history', HistorySchema),
+};

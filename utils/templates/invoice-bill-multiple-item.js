@@ -1,4 +1,4 @@
-const moment = require("moment")
+const moment = require('moment');
 
 const invoiceBillMultipleItems = (data) => {
     return `<!DOCTYPE html>
@@ -7,7 +7,7 @@ const invoiceBillMultipleItems = (data) => {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${data?.title || ""}</title>
+    <title>${data?.title || ''}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -42,23 +42,34 @@ const invoiceBillMultipleItems = (data) => {
 
 <body>
     <div style="display: flex; justify-content: space-between">
-        <h1>${data?.title || ""}</h1>
+        <h1>${data?.title || ''}</h1>
     </div>
     <span>Date: ${moment(new Date()).format('DD-MM-YYYY')}</span>
     <div style="display: flex; justify-content: space-between">
-        ${data?.supplierName ? `<div>
+        ${
+            data?.supplierName
+                ? `<div>
             Supplier Name: ${data.supplierName}
-        </div></>` : ""}
-        ${data?.storeName ? `<div>
+        </div></>`
+                : ''
+        }
+        ${
+            data?.storeName
+                ? `<div>
             Warehouse Name: ${data.storeName}
-        </div></>` : ""}
+        </div></>`
+                : ''
+        }
     </div>
     <div style="display: flex; justify-content: space-between">
-        ${data?.referenceNo ? `
+        ${
+            data?.referenceNo
+                ? `
         <div>
-            Reference No: ${data?.referenceNo || ""}
+            Reference No: ${data?.referenceNo || ''}
         </div>`
-            : ""}
+                : ''
+        }
     </div>
     <div>
         <table>
@@ -70,33 +81,46 @@ const invoiceBillMultipleItems = (data) => {
                 </tr>
             </thead>
             <tbody>
-            ${data.productName ? data.productName.map((productName, idx) => `
+            ${
+                data.productName
+                    ? data.productName
+                          .map(
+                              (productName, idx) => `
                 <tr>
                     <td>${productName}</td>
-                    <td>${data.brandName[idx] || ""}</td>
-                    <td style="text-align: right">${data.qty[idx] || ""}</td>
+                    <td>${data.brandName[idx] || ''}</td>
+                    <td style="text-align: right">${data.qty[idx] || ''}</td>
                 </tr>`
-            ).join('') : ''}
+                          )
+                          .join('')
+                    : ''
+            }
         </tbody>
         </table>
     </div>
     <div style="display: flex; justify-content: space-between">
-        ${data?.reason ? `<div>
+        ${
+            data?.reason
+                ? `<div>
             Reason: ${data.reason}
-        </div></>` : ""}
+        </div></>`
+                : ''
+        }
     </div>
 </body>
 
-</html>`
-}
+</html>`;
+};
 
 module.exports = {
-    invoiceBillMultipleItems
-}
+    invoiceBillMultipleItems,
+};
 
-{/* <tr style="height: 5em; vertical-align: bottom">
+{
+    /* <tr style="height: 5em; vertical-align: bottom">
                     <td></td>
                     <td></td>
                     <td style="font-weight: bold; text-align: right">Total</td>
                     <td style="text-align: right">{{ total }}$</td>
-                </tr> */}
+                </tr> */
+}

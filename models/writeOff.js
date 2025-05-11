@@ -1,16 +1,16 @@
-const mongoose = require("mongoose");
-const { main } = require("./index");
+const mongoose = require('mongoose');
+const initConnections = require('.');
 
 const WriteOffSchema = new mongoose.Schema(
     {
         userID: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "users",
+            ref: 'users',
             required: true,
         },
         ProductID: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "product",
+            ref: 'product',
             required: true,
         },
         StockSold: {
@@ -29,12 +29,12 @@ const WriteOffSchema = new mongoose.Schema(
         },
         BrandID: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "brand",
+            ref: 'brand',
             required: true,
         },
         warehouseID: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "warehouse",
+            ref: 'warehouse',
             required: true,
         },
         StoreName: {
@@ -45,25 +45,25 @@ const WriteOffSchema = new mongoose.Schema(
         },
         HistoryID: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "history"
+            ref: 'history',
         },
         linkedPurchaseId: [
             {
                 type: mongoose.Schema.Types.ObjectId,
-                ref: "purchase",
+                ref: 'purchase',
             },
         ],
         isActive: {
             type: Boolean,
-            default: true
-        }
+            default: true,
+        },
     },
     { timestamps: true }
 );
 
-const { primaryDB, secondaryDB } = main()
+const { primaryDB, secondaryDB } = initConnections();
 
 module.exports = {
     PrimaryWriteOff: primaryDB.model('writeOff', WriteOffSchema),
-    SecondaryWriteOff: secondaryDB.model('writeOff', WriteOffSchema)
-}
+    SecondaryWriteOff: secondaryDB.model('writeOff', WriteOffSchema),
+};

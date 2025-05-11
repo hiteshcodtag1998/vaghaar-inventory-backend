@@ -1,11 +1,11 @@
-const express = require("express");
+const express = require('express');
 const app = express();
-const brand = require("../controller/brand");
+const brand = require('../controller/brand');
 
 // Add Store
-app.post("/add", brand.addBrand);
+app.post('/add', brand.addBrand);
 
 // Get All Store
-app.get("/get", brand.getAllBrands)
+app.get('/get', brand.getAllBrands);
 
 module.exports = app;
