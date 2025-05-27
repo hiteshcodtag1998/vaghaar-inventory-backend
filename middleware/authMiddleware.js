@@ -1,16 +1,23 @@
-// middleware/authMiddleware.js
 const jwt = require('jsonwebtoken');
-const { JWT_SECRET } = process.env;
 
 function authenticateJWT(req, res, next) {
-    const token = req.header('Authorization')?.split(' ')[1]; // Extract token from Bearer header
-    if (!token) return res.status(401).send('Access Denied');
+    const token = req.cookies.token; // read from cookie instead of header
+    console.log('req.cookies', req.cookies);
 
-    jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (!token) {
+        return res
+            .status(401)
+            .json({ message: 'Access Denied. No token provided.' });
+    }
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
         if (err) {
-            return res.status(403).send('Invalid Token');
+            return res
+                .status(403)
+                .json({ message: 'Invalid or expired token.' });
         }
-        req.user = user;
+
+        req.user = decoded;
         next();
     });
 }
