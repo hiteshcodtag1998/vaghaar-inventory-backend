@@ -19,6 +19,7 @@ const moment = require('moment');
 const addProduct = async (req, res) => {
     try {
         const products = req.body;
+        console.log('products', products);
 
         const productDocs = await Promise.all(
             products.map(async (product) => {
@@ -78,6 +79,7 @@ const addProduct = async (req, res) => {
 
         res.status(200).send(productDocs);
     } catch (err) {
+        console.log('err', err);
         res.status(402).send(err);
     }
 };

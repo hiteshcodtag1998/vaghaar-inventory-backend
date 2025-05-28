@@ -22,6 +22,7 @@ initConnections();
 
 // Middleware
 app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser()); // ✅ Enable reading cookies
 
 // Set up routes

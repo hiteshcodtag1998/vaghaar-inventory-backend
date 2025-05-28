@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 
 function authenticateJWT(req, res, next) {
     const token = req.cookies.token; // read from cookie instead of header
-    console.log('req.cookies', req.cookies);
+    console.log('req.cookies', req.cookies, req.body);
 
     if (!token) {
         return res

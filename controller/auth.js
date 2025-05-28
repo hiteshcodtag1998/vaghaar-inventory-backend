@@ -30,9 +30,12 @@ exports.login = async (req, res, next) => {
 
         // Prepare JWT payload
         const payload = {
-            id: user._id,
+            _id: user._id,
             email: user.email,
             role: user.roleID,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            roleID: user.roleID,
         };
 
         const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
@@ -105,13 +108,21 @@ exports.register = async (req, res, next) => {
     }
 };
 
-exports.getMe = (req, res) => {
+exports.getMe = async (req, res) => {
     try {
         const token = req.cookies.token;
         if (!token) return res.status(401).json({ message: 'Unauthorized' });
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        return sendSuccess(res, { user: decoded }, 'Data fetched successful');
+
+        const user =
+            (await SecondaryUser.findOne({ email: decoded?.email }).lean()) ||
+            (await PrimaryUser.findOne({ email: decoded?.email }).lean());
+
+        if (user?.password) {
+            delete user.password;
+        }
+        return sendSuccess(res, { user }, 'Data fetched successful');
     } catch (err) {
         return res.status(401).json({ message: 'Invalid token' });
     }
