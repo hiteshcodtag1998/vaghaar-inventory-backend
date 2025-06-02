@@ -1,8 +1,11 @@
 const role = require('../models/role');
+const bcrypt = require('bcrypt');
 const { PrimaryUser, SecondaryUser } = require('../models/users');
 
 // Add AdminUser
 const addAdminUser = async (req, res) => {
+    if (req?.body?.password)
+        req.body.password = await bcrypt.hash(req.body.password, 10);
     const user = new SecondaryUser(req.body);
 
     user.save()
@@ -16,6 +19,8 @@ const addAdminUser = async (req, res) => {
 
 // Add Super AdminUser
 const addMasterSuperAdminUser = async (req, res) => {
+    if (req?.body?.password)
+        req.body.password = await bcrypt.hash(req.body.password, 10);
     const user = new PrimaryUser(req.body);
 
     user.save()

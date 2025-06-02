@@ -10,10 +10,55 @@ exports.login = async (req, res, next) => {
     try {
         const { email, password } = req.body;
 
-        // Try finding user from Secondary first, then Primary
-        let user =
-            (await SecondaryUser.findOne({ email })) ||
-            (await PrimaryUser.findOne({ email }));
+        let user, source;
+
+        // 1️⃣ Try finding in SecondaryUser using aggregation
+        const secondaryResult = await SecondaryUser.aggregate([
+            { $match: { email } },
+            { $limit: 1 },
+            {
+                $lookup: {
+                    from: 'roles',
+                    localField: 'roleID',
+                    foreignField: '_id',
+                    as: 'roleID',
+                },
+            },
+            {
+                $addFields: {
+                    roleID: { $arrayElemAt: ['$roleID', 0] },
+                },
+            },
+        ]);
+
+        if (secondaryResult.length > 0) {
+            user = secondaryResult[0];
+            source = 'SecondaryUser';
+        } else {
+            // 2️⃣ Try finding in PrimaryUser using aggregation
+            const primaryResult = await PrimaryUser.aggregate([
+                { $match: { email } },
+                { $limit: 1 },
+                {
+                    $lookup: {
+                        from: 'roles',
+                        localField: 'roleID',
+                        foreignField: '_id',
+                        as: 'roleID',
+                    },
+                },
+                {
+                    $addFields: {
+                        roleID: { $arrayElemAt: ['$roleID', 0] },
+                    },
+                },
+            ]);
+
+            if (primaryResult.length > 0) {
+                user = primaryResult[0];
+                source = 'PrimaryUser';
+            }
+        }
 
         if (!user) {
             throw new ApiError('Invalid email or password', 401);
@@ -25,41 +70,38 @@ exports.login = async (req, res, next) => {
             throw new ApiError('Invalid email or password', 401);
         }
 
-        // Populate role manually if needed
-        await user.populate('roleID');
-
-        // Prepare JWT payload
         const payload = {
             _id: user._id,
             email: user.email,
-            role: user.roleID,
             firstName: user.firstName,
             lastName: user.lastName,
             roleID: user.roleID,
+            role: user.role,
+            source,
         };
 
         const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
 
-        // ✅ Set HttpOnly cookie
         res.cookie('token', token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', // Only HTTPS in production
-            sameSite: 'Strict', // or "Lax" depending on your frontend/backend domains
-            maxAge: 60 * 60 * 1000, // 1 hour
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'Strict',
+            maxAge: 60 * 60 * 1000,
         });
 
-        // Only expose safe user fields
         const userData = {
             _id: user._id,
             email: user.email,
             firstName: user.firstName,
             lastName: user.lastName,
             roleID: user.roleID,
+            role: user.role,
+            source,
         };
 
-        return sendSuccess(res, { user: userData }, 'Login successful'); // ✅ No token in body
+        return sendSuccess(res, { user: userData }, 'Login successful');
     } catch (err) {
-        next(err); // Global error handler
+        next(err);
     }
 };
 
@@ -108,23 +150,78 @@ exports.register = async (req, res, next) => {
     }
 };
 
-exports.getMe = async (req, res) => {
+exports.getMe = async (req, res, next) => {
     try {
         const token = req.cookies.token;
-        if (!token) return res.status(401).json({ message: 'Unauthorized' });
+        if (!token) throw new ApiError('Unauthorized', 401);
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        const user =
-            (await SecondaryUser.findOne({ email: decoded?.email }).lean()) ||
-            (await PrimaryUser.findOne({ email: decoded?.email }).lean());
+        let user, source;
 
-        if (user?.password) {
-            delete user.password;
+        // 🔍 Check in SecondaryUser
+        const secondaryResult = await SecondaryUser.aggregate([
+            { $match: { email: decoded.email } },
+            { $limit: 1 },
+            {
+                $lookup: {
+                    from: 'roles',
+                    localField: 'roleID',
+                    foreignField: '_id',
+                    as: 'roleID',
+                },
+            },
+            {
+                $addFields: {
+                    roleID: { $arrayElemAt: ['$roleID', 0] },
+                },
+            },
+            {
+                $project: {
+                    password: 0, // exclude password
+                },
+            },
+        ]);
+
+        if (secondaryResult.length > 0) {
+            user = secondaryResult[0];
+            source = 'SecondaryUser';
+        } else {
+            // 🔍 Check in PrimaryUser
+            const primaryResult = await PrimaryUser.aggregate([
+                { $match: { email: decoded.email } },
+                { $limit: 1 },
+                {
+                    $lookup: {
+                        from: 'roles',
+                        localField: 'roleID',
+                        foreignField: '_id',
+                        as: 'roleID',
+                    },
+                },
+                {
+                    $addFields: {
+                        roleID: { $arrayElemAt: ['$roleID', 0] },
+                    },
+                },
+                {
+                    $project: {
+                        password: 0, // exclude password
+                    },
+                },
+            ]);
+
+            if (primaryResult.length > 0) {
+                user = primaryResult[0];
+                source = 'PrimaryUser';
+            }
         }
-        return sendSuccess(res, { user }, 'Data fetched successful');
+
+        if (!user) throw new ApiError('Unauthorized', 401);
+
+        return sendSuccess(res, { user, source }, 'Data fetched successfully');
     } catch (err) {
-        return res.status(401).json({ message: 'Invalid token' });
+        next(err);
     }
 };
 
